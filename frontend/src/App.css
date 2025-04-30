@@ -1,10 +1,11 @@
 /* App.css */
+
 .app-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f0f4f8;
+  background-color: #f7f7f7; /* Soft light gray background */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding: 20px;
 }
@@ -12,52 +13,64 @@
 .container {
   text-align: center;
   padding: 30px 20px;
-  border-radius: 10px;
+  border-radius: 12px; /* Slightly more rounded corners */
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
   background-color: #ffffff;
   width: 100%;
   max-width: 420px;
   transition: all 0.3s ease-in-out;
+  border: 1px solid #e0e0e0; /* Subtle border around the container */
+}
+
+.container:hover {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); /* Increased shadow on hover for interactivity */
 }
 
 .title {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 600;
   margin-bottom: 20px;
-  color: #333;
+  color: #2c3e50; /* Darker shade for better readability */
 }
 
 .input-field {
-  padding: 12px;
+  padding: 14px;
   width: 100%;
-  margin-bottom: 15px;
-  border-radius: 6px;
+  margin-bottom: 20px;
+  border-radius: 8px; /* Slightly more rounded corners */
   border: 1px solid #ccc;
   font-size: 16px;
+  transition: border 0.3s ease;
+}
+
+.input-field:focus {
+  border-color: #3498db; /* Blue border on focus for better clarity */
+  outline: none;
 }
 
 .clone-button {
-  padding: 12px 20px;
-  background-color: #4CAF50;
+  padding: 14px 22px;
+  background-color: #3498db; /* More vibrant blue */
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .clone-button:hover {
-  background-color: #43a047;
+  background-color: #2980b9; /* Darker blue on hover for clear feedback */
+  transform: translateY(-2px); /* Slight lift effect on hover */
 }
 
 .clone-button:disabled {
-  background-color: #a5d6a7;
+  background-color: #95a5a6; /* Muted gray when disabled */
   cursor: not-allowed;
 }
 
 .error {
-  color: #d32f2f;
+  color: #e74c3c; /* Strong red for error messages */
   margin-top: 10px;
   font-size: 14px;
 }
@@ -65,14 +78,14 @@
 .progress-bar {
   position: relative;
   height: 20px;
-  background-color: #e0e0e0;
+  background-color: #ecf0f1; /* Light gray background for progress bar */
   border-radius: 10px;
   overflow: hidden;
   margin-top: 15px;
 }
 
 .progress-fill {
-  background-color: #4caf50;
+  background-color: #3498db; /* Vibrant blue for progress fill */
   height: 100%;
   width: 0;
   transition: width 0.3s ease;
@@ -87,4 +100,6 @@
   line-height: 20px;
   font-size: 14px;
   color: #fff;
+  font-weight: bold;
 }
+
