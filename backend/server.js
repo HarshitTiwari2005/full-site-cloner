@@ -41,7 +41,7 @@ app.post("/clone", async (req, res) => {
     const $ = cheerio.load(response.data);
     const baseUrl = new URL(url).origin;
 
-    const assetTasks = [];
+    var assetTasks = [];
 
     // Helper to handle attributes like src or href
     const handleAsset = async (tag, attr, folder) => {
@@ -90,17 +90,23 @@ app.post("/clone", async (req, res) => {
     const archive = archiver("zip", { zlib: { level: 9 } });
 
     output.on("close", () => {
-      return res.json({ downloadLink: "http://localhost:5000/cloned/cloned.zip" });
+      return res.json({ downloadLink: "/cloned/cloned.zip" });
     });
 
-    archive.on("error", (err) => { throw err; });
+    archive.on("error", (err) => {
+      console.error("🔥 Archive error:", err.message);
+      throw err;
+    });
+
     archive.pipe(output);
     archive.directory(cloneDir, false); // Add everything in cloned/
     await archive.finalize();
 
   } catch (error) {
     console.error("🔥 Cloning error:", error.message);
-    return res.status(500).json({ error: "Failed to clone website." });
+    // Log more details about the error
+    console.error("Error stack:", error.stack);
+    return res.status(500).json({ error: `Failed to clone website: ${error.message}` });
   }
 });
 

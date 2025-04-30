@@ -1,105 +1,189 @@
-/* App.css */
+/*========================
+  CSS VARIABLES
+=========================*/
+:root {
+  --primary-color: #3498db;
+  --primary-dark: #2980b9;
+  --error-color: #e74c3c;
+  --bg-light: #f4f6f8;
+  --text-dark: #2c3e50;
+  --white: #fff;
+  --input-border: #ccc;
+}
 
+/*========================
+  RESET & BASE STYLES
+=========================*/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  animation: fadeIn 0.6s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*========================
+  CONTAINER
+=========================*/
 .app-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: #f7f7f7; /* Soft light gray background */
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
   padding: 20px;
+  background: linear-gradient(to right, #f4f6f8, #e8edf1);
 }
 
 .container {
-  text-align: center;
-  padding: 30px 20px;
-  border-radius: 12px; /* Slightly more rounded corners */
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-  background-color: #ffffff;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 20px;
+  padding: 40px 30px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
   width: 100%;
   max-width: 420px;
-  transition: all 0.3s ease-in-out;
-  border: 1px solid #e0e0e0; /* Subtle border around the container */
+  text-align: center;
+  transition: box-shadow 0.3s ease-in-out;
 }
 
 .container:hover {
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); /* Increased shadow on hover for interactivity */
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
 }
 
+/*========================
+  TITLE
+=========================*/
 .title {
-  font-size: 26px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  color: #2c3e50; /* Darker shade for better readability */
+  font-size: 30px;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: #34495e;
 }
 
+/*========================
+  INPUT FIELD
+=========================*/
 .input-field {
-  padding: 14px;
   width: 100%;
-  margin-bottom: 20px;
-  border-radius: 8px; /* Slightly more rounded corners */
-  border: 1px solid #ccc;
+  padding: 14px 16px 14px 44px;
+  border-radius: 10px;
+  border: 1px solid var(--input-border);
   font-size: 16px;
-  transition: border 0.3s ease;
+  margin-bottom: 25px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  background: url('data:image/svg+xml,<svg fill="%23999999" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 2C8.1 2 5 5.1 5 9c0 3.9 3.1 7 7 7s7-3.1 7-7c0-3.9-3.1-7-7-7zm0 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm0 14c-3.3 0-10 1.7-10 5v1h20v-1c0-3.3-6.7-5-10-5z"/></svg>') no-repeat 16px center;
+  background-size: 20px 20px;
 }
 
 .input-field:focus {
-  border-color: #3498db; /* Blue border on focus for better clarity */
+  border-color: var(--primary-color);
   outline: none;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
 }
 
+/*========================
+  BUTTON
+=========================*/
 .clone-button {
-  padding: 14px 22px;
-  background-color: #3498db; /* More vibrant blue */
-  color: white;
+  width: 100%;
+  padding: 14px 0;
+  background: linear-gradient(to right, var(--primary-color), #6dd5fa);
+  color: var(--white);
+  font-size: 17px;
+  font-weight: 600;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  transition: background 0.3s ease, transform 0.2s;
+  position: relative;
+  overflow: hidden;
 }
 
 .clone-button:hover {
-  background-color: #2980b9; /* Darker blue on hover for clear feedback */
-  transform: translateY(-2px); /* Slight lift effect on hover */
+  background: linear-gradient(to right, var(--primary-dark), #56c6f2);
+  transform: scale(1.02);
 }
 
 .clone-button:disabled {
-  background-color: #95a5a6; /* Muted gray when disabled */
+  background-color: #bdc3c7;
   cursor: not-allowed;
 }
 
+/*========================
+  ERROR TEXT
+=========================*/
 .error {
-  color: #e74c3c; /* Strong red for error messages */
-  margin-top: 10px;
-  font-size: 14px;
+  color: var(--error-color);
+  margin-top: 15px;
+  font-size: 15px;
+  font-weight: 500;
 }
 
+/*========================
+  PROGRESS BAR
+=========================*/
 .progress-bar {
   position: relative;
-  height: 20px;
-  background-color: #ecf0f1; /* Light gray background for progress bar */
+  height: 14px;
+  background-color: #ecf0f1;
   border-radius: 10px;
   overflow: hidden;
-  margin-top: 15px;
+  margin-top: 20px;
+  width: 100%;
 }
 
 .progress-fill {
-  background-color: #3498db; /* Vibrant blue for progress fill */
+  background-color: var(--primary-color);
   height: 100%;
-  width: 0;
-  transition: width 0.3s ease;
+  width: 0%;
+  transition: width 0.4s ease;
 }
 
 .progress-text {
   position: absolute;
   width: 100%;
   text-align: center;
-  top: 0;
-  left: 0;
-  line-height: 20px;
-  font-size: 14px;
   color: #fff;
   font-weight: bold;
+  top: 0;
+  left: 0;
+  line-height: 14px;
+  font-size: 13px;
+}
+
+/*========================
+  RESPONSIVE
+=========================*/
+@media (max-width: 480px) {
+  .container {
+    padding: 30px 20px;
+    border-radius: 16px;
+  }
+
+  .title {
+    font-size: 26px;
+  }
+
+  .clone-button {
+    font-size: 16px;
+  }
 }
 

@@ -14,7 +14,6 @@ const App = () => {
   };
 
   const handleClone = async () => {
-    // Validate URL
     if (!url.trim() || !/^https?:\/\//i.test(url)) {
       setError("Please enter a valid URL starting with http:// or https://");
       return;
@@ -25,7 +24,8 @@ const App = () => {
       setError("");
       setProgress(0);
 
-      const response = await axios.post("http://localhost:5000/clone", { url });
+      // Directly using the backend URL in the axios call
+      const response = await axios.post("https://full-site-cloner.onrender.com/clone", { url });
       
       // Simulate progress animation
       for (let i = 1; i <= 100; i += 10) {
@@ -34,7 +34,7 @@ const App = () => {
       }
 
       // Trigger file download
-      const downloadLink = response.data.downloadLink;
+      const downloadLink = 'https://full-site-cloner.onrender.com'+response.data.downloadLink;
       const a = document.createElement("a");
       a.href = downloadLink;
       a.download = "cloned.zip";
@@ -55,29 +55,38 @@ const App = () => {
         className="container"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.6 }}
       >
         <h2 className="title">Website Cloner</h2>
 
-        <input
+        <motion.input
           type="text"
           value={url}
           onChange={handleInputChange}
           placeholder="Enter Website URL (e.g. https://example.com)"
           className="input-field"
+          initial={{ scale: 0.9 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.4 }}
         />
 
-        <button onClick={handleClone} className="clone-button" disabled={isDownloading}>
+        <motion.button
+          onClick={handleClone}
+          className="clone-button"
+          disabled={isDownloading}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
           {isDownloading ? "Cloning..." : "Clone Website"}
-        </button>
+        </motion.button>
 
         {error && <div className="error">{error}</div>}
 
         {isDownloading && (
-          <div className="progress-bar">
+          <motion.div className="progress-bar" initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ duration: 0.4 }}>
             <div className="progress-fill" style={{ width: `${progress}%` }} />
             <span className="progress-text">{progress}%</span>
-          </div>
+          </motion.div>
         )}
       </motion.div>
     </div>
