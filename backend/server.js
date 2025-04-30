@@ -7,7 +7,7 @@ const path = require("path");
 const cors = require("cors");
 
 const app = express();
-const PORT = 5000;
+const PORT = 5000; // ⛔ Commented out local port, using hosted endpoint instead
 
 // Enable CORS
 app.use(cors());
@@ -38,13 +38,50 @@ app.post("/clone", async (req, res) => {
     const htmlFilePath = path.join(cloneDir, "index.html");
     await fs.writeFile(htmlFilePath, $.html(), "utf8");
 
-    // Create ZIP
+    const handleAsset = async (tag, attr, folder) => {
+      $(tag).each((_, el) => {
+        const original = $(el).attr(attr);
+        if (original && !original.startsWith("data:") && !original.startsWith("mailto:")) {
+          const fileName = path.basename(original.split("?")[0]);
+          const localPath = `${folder}/${fileName}`;
+          const savePath = path.join(cloneDir, localPath);
+          assetTasks.push(downloadResource(original, baseUrl, savePath));
+          $(el).attr(attr, localPath);
+        }
+      });
+    };
+
+    await handleAsset("link[rel='stylesheet']", "href", "css");
+    await handleAsset("script[src]", "src", "js");
+    await handleAsset("img[src]", "src", "images");
+
+    $("[style]").each((_, el) => {
+      const style = $(el).attr("style");
+      const match = /url\(['"]?(.*?)['"]?\)/.exec(style);
+      if (match && match[1]) {
+        const imgUrl = match[1];
+        const fileName = path.basename(imgUrl.split("?")[0]);
+        const localPath = `images/${fileName}`;
+        const savePath = path.join(cloneDir, localPath);
+        assetTasks.push(downloadResource(imgUrl, baseUrl, savePath));
+        const newStyle = style.replace(imgUrl, localPath);
+        $(el).attr("style", newStyle);
+      }
+    });
+
+    await Promise.all(assetTasks);
+
+    const htmlPath = path.join(cloneDir, "index.html");
+    await fs.writeFile(htmlPath, $.html(), "utf8");
+
     const zipPath = path.join(cloneDir, "cloned.zip");
     const output = fs.createWriteStream(zipPath);
     const archive = archiver("zip", { zlib: { level: 9 } });
 
     output.on("close", () => {
-      return res.json({ downloadLink: "http://localhost:5000/cloned/cloned.zip" });
+      return res.json({
+        downloadLink: "/cloned/cloned.zip", // ✅ Updated URL
+      });
     });
 
     archive.on("error", (err) => {
@@ -52,7 +89,7 @@ app.post("/clone", async (req, res) => {
     });
 
     archive.pipe(output);
-    archive.file(htmlFilePath, { name: "index.html" });
+    archive.directory(cloneDir, false);
     await archive.finalize();
 
   } catch (error) {
