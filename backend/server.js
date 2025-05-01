@@ -120,6 +120,26 @@ const clonePage = async (pageUrl, baseCloneDir, baseUrl) => {
   }
 };
 
+// Function to remove files and directories recursively
+const clearDirectory = async (dir) => {
+  try {
+    const files = await fs.readdir(dir);
+    if (files.length > 0) {
+      await Promise.all(files.map(async (file) => {
+        const filePath = path.join(dir, file);
+        const stats = await fs.stat(filePath);
+        if (stats.isDirectory()) {
+          await fs.remove(filePath);  // Remove directory recursively
+        } else {
+          await fs.unlink(filePath);  // Remove file
+        }
+      }));
+    }
+  } catch (err) {
+    console.error(`Error clearing directory: ${err.message}`);
+  }
+};
+
 app.post("/clone", async (req, res) => {
   const { url } = req.body;
   if (!url || !/^https?:\/\//i.test(url)) {
@@ -128,7 +148,7 @@ app.post("/clone", async (req, res) => {
 
   try {
     const cloneDir = path.join(__dirname, "cloned");
-    await fs.emptyDir(cloneDir); // Clear the cloned folder before cloning a new site
+    await clearDirectory(cloneDir); // Clear the cloned folder before cloning a new site
     visitedPages.clear();
 
     const baseUrl = new URL(url).origin;
