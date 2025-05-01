@@ -8,14 +8,18 @@ const cors = require("cors");
 const { URL } = require("url");
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+// Enable CORS for all domains or restrict to specific ones for production
+app.use(cors({
+  origin: "*", // Change this to specific frontend URL(s) in production
+}));
 app.use(express.json());
 app.use("/cloned", express.static(path.join(__dirname, "cloned")));
 
 const visitedPages = new Set();
 
+// Download assets (CSS, JS, images, etc.)
 const downloadResource = async (resourceUrl, baseUrl, savePath) => {
   try {
     const fullUrl = new URL(resourceUrl, baseUrl).href;
@@ -28,8 +32,9 @@ const downloadResource = async (resourceUrl, baseUrl, savePath) => {
   }
 };
 
+// Recursive function to clone the webpage and its resources
 const clonePage = async (pageUrl, baseCloneDir, baseUrl, depth = 0) => {
-  if (visitedPages.has(pageUrl) || depth > 2) return; // prevent infinite recursion
+  if (visitedPages.has(pageUrl) || depth > 2) return; // Prevent infinite recursion and limit depth
   visitedPages.add(pageUrl);
 
   const response = await axios.get(pageUrl);
@@ -40,6 +45,7 @@ const clonePage = async (pageUrl, baseCloneDir, baseUrl, depth = 0) => {
 
   const assetTasks = [];
 
+  // Function to handle assets like CSS, JS, and images
   const handleAsset = (tag, attr, folder) => {
     $(tag).each((_, el) => {
       const original = $(el).attr(attr);
@@ -53,10 +59,12 @@ const clonePage = async (pageUrl, baseCloneDir, baseUrl, depth = 0) => {
     });
   };
 
+  // Handle styles, scripts, and images
   await handleAsset("link[rel='stylesheet']", "href", "css");
   await handleAsset("script[src]", "src", "js");
   await handleAsset("img[src]", "src", "images");
 
+  // Handling inline background images in CSS
   $("[style]").each((_, el) => {
     const style = $(el).attr("style");
     const match = /url\(['"]?(.*?)['"]?\)/.exec(style);
@@ -79,7 +87,7 @@ const clonePage = async (pageUrl, baseCloneDir, baseUrl, depth = 0) => {
       const fullLink = new URL(link, baseUrl);
       if (fullLink.origin === baseUrl) {
         const pathname = fullLink.pathname.replace(/\/$/, "");
-        const filename = (pathname === "" || pathname === "/") ? "index.html" : `${pathname.replace(/^\/+/, "")}.html`;
+        const filename = pathname === "" || pathname === "/" ? "index.html" : `${pathname.replace(/^\/+/, "")}.html`;
         $(el).attr("href", filename);
         links.push(fullLink.href);
       }
@@ -89,6 +97,7 @@ const clonePage = async (pageUrl, baseCloneDir, baseUrl, depth = 0) => {
   await Promise.all(assetTasks);
   await fs.writeFile(pagePath, $.html(), "utf8");
 
+  // Recurse for internal links
   for (const link of links) {
     await clonePage(link, baseCloneDir, baseUrl, depth + 1);
   }
@@ -102,12 +111,13 @@ app.post("/clone", async (req, res) => {
 
   try {
     const cloneDir = path.join(__dirname, "cloned");
-    await fs.emptyDir(cloneDir);
+    await fs.emptyDir(cloneDir); // Clear the cloned folder before cloning new site
     visitedPages.clear();
 
     const baseUrl = new URL(url).origin;
     await clonePage(url, cloneDir, baseUrl);
 
+    // Create the zip archive
     const zipPath = path.join(cloneDir, "cloned.zip");
     const output = fs.createWriteStream(zipPath);
     const archive = archiver("zip", { zlib: { level: 9 } });
