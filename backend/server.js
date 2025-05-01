@@ -24,7 +24,7 @@ const downloadResource = async (resourceUrl, baseUrl, savePath) => {
   try {
     const fullUrl = new URL(resourceUrl, baseUrl).href;
     const response = await axios.get(fullUrl, { responseType: "arraybuffer" });
-    
+
     if (response.status === 404) {
       console.error(`❌ 404 Not Found: ${fullUrl}`);
       return false;
@@ -110,6 +110,7 @@ const clonePage = async (pageUrl, baseCloneDir, baseUrl) => {
     } catch (_) {}
   });
 
+  // Wait for all asset downloads to finish
   await Promise.all(assetTasks);
   await fs.writeFile(pagePath, $.html(), "utf8");
 
@@ -127,7 +128,7 @@ app.post("/clone", async (req, res) => {
 
   try {
     const cloneDir = path.join(__dirname, "cloned");
-    await fs.emptyDir(cloneDir); // Clear the cloned folder before cloning new site
+    await fs.emptyDir(cloneDir); // Clear the cloned folder before cloning a new site
     visitedPages.clear();
 
     const baseUrl = new URL(url).origin;
