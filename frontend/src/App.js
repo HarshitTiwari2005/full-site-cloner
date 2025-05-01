@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import "./App.css"; // Import your custom CSS
+import "./App.css";
 
 const App = () => {
   const [url, setUrl] = useState("");
@@ -11,12 +11,12 @@ const App = () => {
 
   const handleInputChange = (e) => {
     setUrl(e.target.value);
+    setError(""); // Clear error on input change
   };
 
   const handleClone = async () => {
-    // Validate URL
     if (!url.trim() || !/^https?:\/\//i.test(url)) {
-      setError("Please enter a valid URL starting with http:// or https://");
+      setError("❌ Please enter a valid URL starting with http:// or https://");
       return;
     }
 
@@ -25,60 +25,106 @@ const App = () => {
       setError("");
       setProgress(0);
 
-      const response = await axios.post("http://localhost:5000/clone", { url });
-      
-      // Simulate progress animation
+      const response = await axios.post("https://full-site-cloner.onrender.com/clone", { url });
+
       for (let i = 1; i <= 100; i += 10) {
         setProgress(i);
         await new Promise((r) => setTimeout(r, 30));
       }
 
-      // Trigger file download
-      const downloadLink = response.data.downloadLink;
+      const downloadLink = "https://full-site-cloner.onrender.com" + response.data.downloadLink;
       const a = document.createElement("a");
       a.href = downloadLink;
       a.download = "cloned.zip";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+
+      setTimeout(() => alert("✅ Website cloned successfully and download started!"), 500);
     } catch (err) {
-      console.error(err);
-      setError("Failed to clone the website. Please try again.");
+      console.error("Error cloning website:", err);
+      setError(err.response?.data?.error || "❌ Failed to clone the website. Please try again.");
     } finally {
       setIsDownloading(false);
+      setProgress(0);
     }
   };
 
   return (
     <div className="app-container">
       <motion.div
-        className="container"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        className="card"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6 }}
       >
-        <h2 className="title">Website Cloner</h2>
+        <header className="card-header">
+          <motion.img
+            src="" // Place logo.png in your public folder
+            alt="Logo"
+            className="logo"
+            initial={{ y: -20 }}
+            animate={{ y: 0 }}
+            transition={{ duration: 0.5 }}
+          />
+          <h2>🌐 Website Cloner</h2>
+          <p>Enter a website URL to clone and download it as a ZIP file.</p>
+        </header>
 
-        <input
+        <motion.input
           type="text"
           value={url}
           onChange={handleInputChange}
-          placeholder="Enter Website URL (e.g. https://example.com)"
+          placeholder="Enter Website URL (e.g., https://example.com)"
           className="input-field"
+          whileHover={{ scale: 1.05 }}
         />
 
-        <button onClick={handleClone} className="clone-button" disabled={isDownloading}>
+        <motion.button
+          onClick={handleClone}
+          className="clone-button"
+          disabled={isDownloading}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
           {isDownloading ? "Cloning..." : "Clone Website"}
-        </button>
+        </motion.button>
 
-        {error && <div className="error">{error}</div>}
+        {error && <div className="error-message">{error}</div>}
 
         {isDownloading && (
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${progress}%` }} />
+          <motion.div
+            className="progress-bar"
+            initial={{ width: "0%" }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.3 }}
+          >
             <span className="progress-text">{progress}%</span>
-          </div>
+          </motion.div>
         )}
+
+        <footer className="card-footer">
+          <div className="footer-item">
+            <h3>HTML</h3>
+            <img src="/html.png" alt="HTML" />
+          </div>
+          <div className="footer-item">
+            <h3>CSS</h3>
+            <img src="/cssjavascript.png" alt="CSS & JS" />
+          </div>
+          <div className="footer-item">
+            <h3>JavaScript</h3>
+            <img src="/js.png" alt="JavaScript" />
+          </div>
+          <div className="footer-item">
+            <h3>Images</h3>
+            <img src="/images.png" alt="Images" />
+          </div>
+        </footer>
+
+        <div className="education-note">
+          <p>⚠️ This tool is for educational purposes only. Do not use it to clone websites without permission.</p>
+        </div>
       </motion.div>
     </div>
   );
