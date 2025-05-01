@@ -39,6 +39,8 @@ const clonePage = async (pageUrl, baseCloneDir, baseUrl) => {
 
   const response = await axios.get(pageUrl);
   const $ = cheerio.load(response.data);
+
+  // Generate relative path for each page
   const relativePath = new URL(pageUrl).pathname === "/" ? "index.html" : `${new URL(pageUrl).pathname.replace(/^\/+/, "").replace(/\/$/, "") || "index"}.html`;
   const pagePath = path.join(baseCloneDir, relativePath);
   await fs.ensureDir(path.dirname(pagePath));
@@ -50,10 +52,11 @@ const clonePage = async (pageUrl, baseCloneDir, baseUrl) => {
     $(tag).each((_, el) => {
       const original = $(el).attr(attr);
       if (original && !original.startsWith("data:") && !original.startsWith("mailto:")) {
-        const fileName = path.basename(original.split("?")[0]);
+        const fullUrl = new URL(original, baseUrl).href;
+        const fileName = path.basename(fullUrl.split("?")[0]);
         const localPath = `${folder}/${fileName}`;
         const savePath = path.join(baseCloneDir, localPath);
-        assetTasks.push(downloadResource(original, baseUrl, savePath));
+        assetTasks.push(downloadResource(fullUrl, baseUrl, savePath));
         $(el).attr(attr, localPath);
       }
     });
