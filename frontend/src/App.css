@@ -1,17 +1,4 @@
 /*========================
-  CSS VARIABLES
-=========================*/
-:root {
-  --primary-color: #3498db;
-  --primary-dark: #2980b9;
-  --error-color: #e74c3c;
-  --bg-light: #f4f6f8;
-  --text-dark: #2c3e50;
-  --white: #fff;
-  --input-border: #ccc;
-}
-
-/*========================
   RESET & BASE STYLES
 =========================*/
 * {
@@ -21,169 +8,165 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: var(--bg-light);
-  color: var(--text-dark);
-  transition: background-color 0.3s ease, color 0.3s ease;
-  animation: fadeIn 0.6s ease-in;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/*========================
-  CONTAINER
-=========================*/
-.app-container {
+  font-family: 'Roboto', sans-serif;
+  background-color: #F4F4F4; /* Light Gray */
+  color: #333;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  padding: 20px;
-  background: linear-gradient(to right, #f4f6f8, #e8edf1);
-}
-
-.container {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-radius: 20px;
-  padding: 40px 30px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-  width: 100%;
-  max-width: 420px;
+  height: 100vh;
+  flex-direction: column;
   text-align: center;
-  transition: box-shadow 0.3s ease-in-out;
 }
 
-.container:hover {
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
+h2, p {
+  font-family: 'Poppins', sans-serif;
 }
 
-/*========================
-  TITLE
-=========================*/
-.title {
-  font-size: 30px;
+h2 {
+  color: #3A4E7A; /* Dark Blue */
+  font-size: 36px;
   font-weight: 700;
-  margin-bottom: 25px;
-  color: #34495e;
+}
+
+p {
+  font-size: 18px;
+  color: #009688; /* Teal */
+  margin-top: 10px;
 }
 
 /*========================
-  INPUT FIELD
+  MAIN CARD CONTAINER
 =========================*/
-.input-field {
-  width: 100%;
-  padding: 14px 16px 14px 44px;
+.card {
+  background-color: #ffffff;
   border-radius: 10px;
-  border: 1px solid var(--input-border);
-  font-size: 16px;
-  margin-bottom: 25px;
-  transition: border-color 0.3s, box-shadow 0.3s;
-  background: url('data:image/svg+xml,<svg fill="%23999999" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 2C8.1 2 5 5.1 5 9c0 3.9 3.1 7 7 7s7-3.1 7-7c0-3.9-3.1-7-7-7zm0 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm0 14c-3.3 0-10 1.7-10 5v1h20v-1c0-3.3-6.7-5-10-5z"/></svg>') no-repeat 16px center;
-  background-size: 20px 20px;
-}
-
-.input-field:focus {
-  border-color: var(--primary-color);
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-}
-
-/*========================
-  BUTTON
-=========================*/
-.clone-button {
   width: 100%;
-  padding: 14px 0;
-  background: linear-gradient(to right, var(--primary-color), #6dd5fa);
-  color: var(--white);
-  font-size: 17px;
+  max-width: 600px;
+  padding: 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  margin: 20px;
+}
+
+.card h2 {
+  font-size: 36px;
+  color: #3A4E7A; /* Dark Blue */
+  margin-bottom: 20px;
+}
+
+.card .input-field {
+  width: 80%;
+  padding: 15px 20px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 18px;
+  margin-bottom: 20px;
+  background-color: #f4f7fa;
+}
+
+.card .input-field:focus {
+  border-color: #009688; /* Teal */
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 150, 136, 0.2);
+}
+
+.card .clone-button {
+  width: 80%;
+  padding: 15px;
+  background-color: #3A4E7A; /* Dark Blue */
+  color: white;
+  font-size: 18px;
   font-weight: 600;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s;
-  position: relative;
-  overflow: hidden;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
 }
 
-.clone-button:hover {
-  background: linear-gradient(to right, var(--primary-dark), #56c6f2);
-  transform: scale(1.02);
+.card .clone-button:hover {
+  background-color: #1e2d45; /* Darker Blue */
 }
 
-.clone-button:disabled {
-  background-color: #bdc3c7;
+.card .clone-button:disabled {
+  background-color: #BDC3C7;
   cursor: not-allowed;
 }
 
-/*========================
-  ERROR TEXT
-=========================*/
-.error {
-  color: var(--error-color);
-  margin-top: 15px;
-  font-size: 15px;
-  font-weight: 500;
-}
-
-/*========================
-  PROGRESS BAR
-=========================*/
 .progress-bar {
-  position: relative;
-  height: 14px;
-  background-color: #ecf0f1;
-  border-radius: 10px;
-  overflow: hidden;
-  margin-top: 20px;
-  width: 100%;
-}
-
-.progress-fill {
-  background-color: var(--primary-color);
-  height: 100%;
   width: 0%;
-  transition: width 0.4s ease;
+  height: 5px;
+  background-color: #009688; /* Teal */
+  margin-top: 20px;
+  border-radius: 5px;
 }
 
 .progress-text {
   position: absolute;
-  width: 100%;
-  text-align: center;
-  color: #fff;
-  font-weight: bold;
-  top: 0;
-  left: 0;
-  line-height: 14px;
-  font-size: 13px;
+  top: -25px;
+  font-size: 16px;
+  color: #3A4E7A; /* Dark Blue */
+}
+
+.error {
+  color: #FF4D4D; /* Red */
+  margin-top: 10px;
 }
 
 /*========================
-  RESPONSIVE
+  FOOTER
 =========================*/
-@media (max-width: 480px) {
-  .container {
-    padding: 30px 20px;
-    border-radius: 16px;
+.footer-item {
+  display: inline-block;
+  margin-top: 30px;
+  margin-right: 20px;
+  text-align: center;
+}
+
+.footer-item img {
+  width: 50px;
+  height: 50px;
+  margin-top: 10px;
+}
+
+.footer-item h3 {
+  font-size: 16px;
+  color: #333;
+}
+
+/*========================
+  EDUCATION NOTE
+=========================*/
+.education-note {
+  margin-top: 20px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #FF4D4D; /* Red */
+}
+
+.education-note p {
+  color: #FF4D4D;
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+/*========================
+  RESPONSIVE DESIGN
+=========================*/
+@media (max-width: 600px) {
+  .card {
+    padding: 20px;
   }
 
-  .title {
-    font-size: 26px;
+  .card h2 {
+    font-size: 28px;
+  }
+
+  .card .input-field {
+    font-size: 14px;
   }
 
   .clone-button {
     font-size: 16px;
   }
 }
-
