@@ -33,8 +33,8 @@ const downloadResource = async (resourceUrl, baseUrl, savePath) => {
 };
 
 // Recursive function to clone the webpage and its resources
-const clonePage = async (pageUrl, baseCloneDir, baseUrl, depth = 0) => {
-  if (visitedPages.has(pageUrl) || depth > 2) return; // Prevent infinite recursion and limit depth
+const clonePage = async (pageUrl, baseCloneDir, baseUrl) => {
+  if (visitedPages.has(pageUrl)) return; // Prevent infinite recursion
   visitedPages.add(pageUrl);
 
   const response = await axios.get(pageUrl);
@@ -99,7 +99,7 @@ const clonePage = async (pageUrl, baseCloneDir, baseUrl, depth = 0) => {
 
   // Recurse for internal links
   for (const link of links) {
-    await clonePage(link, baseCloneDir, baseUrl, depth + 1);
+    await clonePage(link, baseCloneDir, baseUrl);
   }
 };
 

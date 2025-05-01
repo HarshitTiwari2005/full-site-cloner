@@ -11,11 +11,12 @@ const App = () => {
 
   const handleInputChange = (e) => {
     setUrl(e.target.value);
+    setError(""); // Clear error on input change
   };
 
   const handleClone = async () => {
     if (!url.trim() || !/^https?:\/\//i.test(url)) {
-      setError("Please enter a valid URL starting with http:// or https://");
+      setError("❌ Please enter a valid URL starting with http:// or https://");
       return;
     }
 
@@ -26,7 +27,6 @@ const App = () => {
 
       const response = await axios.post("https://full-site-cloner.onrender.com/clone", { url });
 
-      // Simulate progress
       for (let i = 1; i <= 100; i += 10) {
         setProgress(i);
         await new Promise((r) => setTimeout(r, 30));
@@ -40,13 +40,13 @@ const App = () => {
       a.click();
       document.body.removeChild(a);
 
-      // Optional success message
       setTimeout(() => alert("✅ Website cloned successfully and download started!"), 500);
     } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.error || "Failed to clone the website. Please try again.");
+      console.error("Error cloning website:", err);
+      setError(err.response?.data?.error || "❌ Failed to clone the website. Please try again.");
     } finally {
       setIsDownloading(false);
+      setProgress(0);
     }
   };
 
@@ -60,22 +60,22 @@ const App = () => {
       >
         <header className="card-header">
           <motion.img
-            src="" // Replace with your logo/image
+            src="" // Place logo.png in your public folder
             alt="Logo"
             className="logo"
             initial={{ y: -20 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.5 }}
           />
-          <h2>Website Cloner</h2>
-          <p>Clone any website by simply entering its URL. Download the entire site as a ZIP file.</p>
+          <h2>🌐 Website Cloner</h2>
+          <p>Enter a website URL to clone and download it as a ZIP file.</p>
         </header>
 
         <motion.input
           type="text"
           value={url}
           onChange={handleInputChange}
-          placeholder="Enter Website URL"
+          placeholder="Enter Website URL (e.g., https://example.com)"
           className="input-field"
           whileHover={{ scale: 1.05 }}
         />
@@ -90,13 +90,14 @@ const App = () => {
           {isDownloading ? "Cloning..." : "Clone Website"}
         </motion.button>
 
-        {error && <div className="error">{error}</div>}
+        {error && <div className="error-message">{error}</div>}
 
         {isDownloading && (
           <motion.div
             className="progress-bar"
             initial={{ width: "0%" }}
             animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.3 }}
           >
             <span className="progress-text">{progress}%</span>
           </motion.div>
@@ -109,11 +110,11 @@ const App = () => {
           </div>
           <div className="footer-item">
             <h3>CSS</h3>
-            <img src="/cssjavascript.png" alt="CSS/JavaScript" />
+            <img src="/cssjavascript.png" alt="CSS & JS" />
           </div>
           <div className="footer-item">
-            <h3>JS</h3>
-            <img src="/js.png" alt="Fonts" />
+            <h3>JavaScript</h3>
+            <img src="/js.png" alt="JavaScript" />
           </div>
           <div className="footer-item">
             <h3>Images</h3>
@@ -122,7 +123,7 @@ const App = () => {
         </footer>
 
         <div className="education-note">
-          <p>This project is for educational purposes only.</p>
+          <p>⚠️ This tool is for educational purposes only. Do not use it to clone websites without permission.</p>
         </div>
       </motion.div>
     </div>
