@@ -106,19 +106,19 @@ const App = () => {
         <footer className="card-footer">
           <div className="footer-item">
             <h3>HTML</h3>
-            <img src="/html.png" alt="HTML" />
+            <img src="html.png" alt="HTML" />
           </div>
           <div className="footer-item">
             <h3>CSS</h3>
-            <img src="/cssjavascript.png" alt="CSS & JS" />
+            <img src="cssjavascript.png" alt="CSS & JS" />
           </div>
           <div className="footer-item">
             <h3>JavaScript</h3>
-            <img src="/js.png" alt="JavaScript" />
+            <img src="js.png" alt="JavaScript" />
           </div>
           <div className="footer-item">
             <h3>Images</h3>
-            <img src="/images.png" alt="Images" />
+            <img src="images.png" alt="Images" />
           </div>
         </footer>
 
