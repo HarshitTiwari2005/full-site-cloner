@@ -10,26 +10,16 @@ const { URL } = require("url");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Enable CORS for all domains or restrict to specific ones for production
-app.use(cors({
-  origin: "*", // Change this to specific frontend URL(s) in production
-}));
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use("/cloned", express.static(path.join(__dirname, "cloned")));
 
 const visitedPages = new Set();
 
-// Download assets (CSS, JS, images, etc.)
 const downloadResource = async (resourceUrl, baseUrl, savePath) => {
   try {
     const fullUrl = new URL(resourceUrl, baseUrl).href;
     const response = await axios.get(fullUrl, { responseType: "arraybuffer" });
-
-    if (response.status === 404) {
-      console.error(`❌ 404 Not Found: ${fullUrl}`);
-      return false;
-    }
-
     await fs.outputFile(savePath, response.data);
     return true;
   } catch (error) {
@@ -38,49 +28,48 @@ const downloadResource = async (resourceUrl, baseUrl, savePath) => {
   }
 };
 
-// Recursive function to clone the webpage and its resources
-const clonePage = async (pageUrl, baseCloneDir, baseUrl) => {
-  if (visitedPages.has(pageUrl)) return; // Prevent infinite recursion
+const sanitizeFileName = (urlPath) => {
+  const cleanPath = urlPath.replace(/^\/+/, "").replace(/\/$/, "");
+  return cleanPath === "" ? "index.html" : `${cleanPath}.html`;
+};
+
+const clonePage = async (pageUrl, baseCloneDir, baseUrl, depth = 0) => {
+  if (visitedPages.has(pageUrl) || depth > 2) return;
   visitedPages.add(pageUrl);
 
-  let response;
-  try {
-    response = await axios.get(pageUrl);
-  } catch (err) {
-    console.error(`🔥 Failed to fetch page: ${pageUrl}. Error: ${err.message}`);
-    return;
-  }
-
+  const response = await axios.get(pageUrl);
   const $ = cheerio.load(response.data);
 
-  // Generate relative path for each page
-  const relativePath = new URL(pageUrl).pathname === "/" ? "index.html" : `${new URL(pageUrl).pathname.replace(/^\/+/, "").replace(/\/$/, "") || "index"}.html`;
+  const pathname = new URL(pageUrl).pathname;
+  const relativePath = sanitizeFileName(pathname);
   const pagePath = path.join(baseCloneDir, relativePath);
   await fs.ensureDir(path.dirname(pagePath));
 
   const assetTasks = [];
 
-  // Function to handle assets like CSS, JS, and images
   const handleAsset = (tag, attr, folder) => {
     $(tag).each((_, el) => {
       const original = $(el).attr(attr);
       if (original && !original.startsWith("data:") && !original.startsWith("mailto:")) {
-        const fullUrl = new URL(original, baseUrl).href;
-        const fileName = path.basename(fullUrl.split("?")[0]);
+        const fileName = path.basename(original.split("?")[0]);
         const localPath = `${folder}/${fileName}`;
         const savePath = path.join(baseCloneDir, localPath);
-        assetTasks.push(downloadResource(fullUrl, baseUrl, savePath));
+        assetTasks.push(downloadResource(original, baseUrl, savePath));
         $(el).attr(attr, localPath);
       }
     });
   };
 
-  // Handle styles, scripts, and images
-  await handleAsset("link[rel='stylesheet']", "href", "css");
-  await handleAsset("script[src]", "src", "js");
-  await handleAsset("img[src]", "src", "images");
+  // Handle CSS, JS, images
+  handleAsset("link[rel='stylesheet']", "href", "css");
+  handleAsset("script[src]", "src", "js");
+  handleAsset("img[src]", "src", "images");
+  handleAsset("source[srcset]", "srcset", "images");
+  handleAsset("video[src]", "src", "videos");
+  handleAsset("audio[src]", "src", "audios");
+  handleAsset("iframe[src]", "src", "iframes"); // Optional: if you want to download embedded content
 
-  // Handling inline background images in CSS
+  // Inline styles with background images
   $("[style]").each((_, el) => {
     const style = $(el).attr("style");
     const match = /url\(['"]?(.*?)['"]?\)/.exec(style);
@@ -95,48 +84,26 @@ const clonePage = async (pageUrl, baseCloneDir, baseUrl) => {
     }
   });
 
-  // Handle internal links and recurse
+  // Internal links
   const links = [];
   $("a[href]").each((_, el) => {
-    const link = $(el).attr("href");
+    const href = $(el).attr("href");
     try {
-      const fullLink = new URL(link, baseUrl);
+      const fullLink = new URL(href, baseUrl);
       if (fullLink.origin === baseUrl) {
-        const pathname = fullLink.pathname.replace(/\/$/, "");
-        const filename = pathname === "" || pathname === "/" ? "index.html" : `${pathname.replace(/^\/+/, "")}.html`;
-        $(el).attr("href", filename);
+        const relative = sanitizeFileName(fullLink.pathname);
+        $(el).attr("href", relative);
         links.push(fullLink.href);
       }
     } catch (_) {}
   });
 
-  // Wait for all asset downloads to finish
   await Promise.all(assetTasks);
   await fs.writeFile(pagePath, $.html(), "utf8");
 
-  // Recurse for internal links
+  // Recursively process internal links
   for (const link of links) {
-    await clonePage(link, baseCloneDir, baseUrl);
-  }
-};
-
-// Function to remove files and directories recursively
-const clearDirectory = async (dir) => {
-  try {
-    const files = await fs.readdir(dir);
-    if (files.length > 0) {
-      await Promise.all(files.map(async (file) => {
-        const filePath = path.join(dir, file);
-        const stats = await fs.stat(filePath);
-        if (stats.isDirectory()) {
-          await fs.remove(filePath);  // Remove directory recursively
-        } else {
-          await fs.unlink(filePath);  // Remove file
-        }
-      }));
-    }
-  } catch (err) {
-    console.error(`Error clearing directory: ${err.message}`);
+    await clonePage(link, baseCloneDir, baseUrl, depth + 1);
   }
 };
 
@@ -148,18 +115,16 @@ app.post("/clone", async (req, res) => {
 
   try {
     const cloneDir = path.join(__dirname, "cloned");
-    await clearDirectory(cloneDir); // Clear the cloned folder before cloning a new site
+    await fs.emptyDir(cloneDir);
     visitedPages.clear();
 
     const baseUrl = new URL(url).origin;
-    const siteName = new URL(url).hostname.split('.')[0]; // Extract site name from the URL
+    const siteName = new URL(url).hostname.replace(/\W+/g, "_");
     const siteDir = path.join(cloneDir, siteName);
 
     await fs.ensureDir(siteDir);
-
     await clonePage(url, siteDir, baseUrl);
 
-    // Create the zip archive
     const zipPath = path.join(cloneDir, `${siteName}.zip`);
     const output = fs.createWriteStream(zipPath);
     const archive = archiver("zip", { zlib: { level: 9 } });
