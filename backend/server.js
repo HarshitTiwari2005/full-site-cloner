@@ -115,15 +115,20 @@ app.post("/clone", async (req, res) => {
     visitedPages.clear();
 
     const baseUrl = new URL(url).origin;
-    await clonePage(url, cloneDir, baseUrl);
+    const siteName = new URL(url).hostname.split('.')[0]; // Extract site name from the URL
+    const siteDir = path.join(cloneDir, siteName);
+
+    await fs.ensureDir(siteDir);
+
+    await clonePage(url, siteDir, baseUrl);
 
     // Create the zip archive
-    const zipPath = path.join(cloneDir, "cloned.zip");
+    const zipPath = path.join(cloneDir, `${siteName}.zip`);
     const output = fs.createWriteStream(zipPath);
     const archive = archiver("zip", { zlib: { level: 9 } });
 
     output.on("close", () => {
-      return res.json({ downloadLink: "/cloned/cloned.zip" });
+      return res.json({ downloadLink: `/cloned/${siteName}.zip` });
     });
 
     archive.on("error", (err) => {
@@ -132,7 +137,7 @@ app.post("/clone", async (req, res) => {
     });
 
     archive.pipe(output);
-    archive.directory(cloneDir, false);
+    archive.directory(siteDir, false);
     await archive.finalize();
 
   } catch (error) {
