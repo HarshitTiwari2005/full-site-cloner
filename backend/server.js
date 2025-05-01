@@ -24,6 +24,12 @@ const downloadResource = async (resourceUrl, baseUrl, savePath) => {
   try {
     const fullUrl = new URL(resourceUrl, baseUrl).href;
     const response = await axios.get(fullUrl, { responseType: "arraybuffer" });
+    
+    if (response.status === 404) {
+      console.error(`❌ 404 Not Found: ${fullUrl}`);
+      return false;
+    }
+
     await fs.outputFile(savePath, response.data);
     return true;
   } catch (error) {
@@ -37,7 +43,14 @@ const clonePage = async (pageUrl, baseCloneDir, baseUrl) => {
   if (visitedPages.has(pageUrl)) return; // Prevent infinite recursion
   visitedPages.add(pageUrl);
 
-  const response = await axios.get(pageUrl);
+  let response;
+  try {
+    response = await axios.get(pageUrl);
+  } catch (err) {
+    console.error(`🔥 Failed to fetch page: ${pageUrl}. Error: ${err.message}`);
+    return;
+  }
+
   const $ = cheerio.load(response.data);
 
   // Generate relative path for each page
@@ -145,7 +158,6 @@ app.post("/clone", async (req, res) => {
 
   } catch (error) {
     console.error("🔥 Cloning error:", error.message);
-    console.error("Error stack:", error.stack);
     return res.status(500).json({ error: `Failed to clone website: ${error.message}` });
   }
 });
